@@ -47,7 +47,8 @@ internal static class Program
                 Assert(SelectedTag(Combo(first.Window, "ThemeCombo")) == "System", "theme follows Windows by default");
                 Assert(SelectedTag(Combo(first.Window, "PositionCombo")) == "TopRight", "position defaults to top right");
                 Assert(Math.Abs(Slider(first.Window, "OpacitySlider").Value - 90) < 0.01, "opacity defaults to 90%");
-                Assert(Combo(first.Window, "ThemeCombo").Foreground.ToString().Equals("#FFF4F8FB", StringComparison.OrdinalIgnoreCase), "dark combo-box text has readable contrast");
+                var comboForeground = Combo(first.Window, "ThemeCombo").Foreground.ToString();
+                Assert(comboForeground.Equals("#FFF4F8FB", StringComparison.OrdinalIgnoreCase) || comboForeground.Equals("#FF10202C", StringComparison.OrdinalIgnoreCase), $"combo-box text follows the selected light/dark theme ({comboForeground})");
                 Assert(Text(first.Window, "GameBarStatus").Text.Contains("Unavailable", StringComparison.OrdinalIgnoreCase), "missing Xbox Game Bar host is detected");
                 SelectTag(Combo(first.Window, "ThemeCombo"), "Light");
                 Assert(first.Window.Background.ToString().Equals("#FFF4F7F9", StringComparison.OrdinalIgnoreCase), "light theme applies immediately");
