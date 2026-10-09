@@ -1,6 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using System.Text;
 using Microsoft.Gaming.XboxGameBar;
 using Windows.ApplicationModel;
 using Windows.Data.Json;
@@ -53,8 +52,7 @@ namespace QuietMonitor
         {
             if (_brokerStarted) return;
             await WriteHeartbeatAsync();
-            var encodedPath = Convert.ToBase64String(Encoding.UTF8.GetBytes(_localFolder.Path));
-            await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppWithParametersAsync(encodedPath);
+            await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
             _brokerStarted = true;
         }
 

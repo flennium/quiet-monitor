@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 
@@ -10,21 +11,14 @@ namespace QuietMonitor.SensorBroker
         private const string MutexName = "Local\\QuietMonitor.SensorBroker";
 
         [STAThread]
-        private static void Main(string[] args)
+        private static void Main()
         {
-            if (args.Length == 0) return;
-
-            string localStatePath;
-            try
-            {
-                localStatePath = Encoding.UTF8.GetString(Convert.FromBase64String(args[0]));
-            }
-            catch
-            {
-                return;
-            }
-
-            if (!Directory.Exists(localStatePath)) return;
+            var packageFamilyName = GetPackageFamilyName();
+            if (packageFamilyName == null) return;
+            var localStatePath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "Packages", packageFamilyName, "LocalState");
+            Directory.CreateDirectory(localStatePath);
 
             using (var mutex = new Mutex(true, MutexName, out var isFirstInstance))
             {
@@ -49,6 +43,19 @@ namespace QuietMonitor.SensorBroker
                 }
             }
         }
+
+        private static string GetPackageFamilyName()
+        {
+            uint length = 0;
+            var result = GetCurrentPackageFamilyName(ref length, null);
+            if (result != 122 || length == 0) return null;
+
+            var value = new StringBuilder((int)length);
+            return GetCurrentPackageFamilyName(ref length, value) == 0 ? value.ToString() : null;
+        }
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
+        private static extern int GetCurrentPackageFamilyName(ref uint packageFamilyNameLength, StringBuilder packageFamilyName);
 
         private static bool HeartbeatIsCurrent(string path)
         {
