@@ -1,5 +1,5 @@
 #ifndef AppVersion
-#define AppVersion "0.1.0-beta.6"
+#define AppVersion "0.1.0-beta.7"
 #endif
 #ifndef CertThumbprint
   #define CertThumbprint "876A918726367882CA91C931386E5D6FB4EE10B0"
@@ -27,7 +27,7 @@ SolidCompression=yes
 WizardStyle=modern
 SetupIconFile=QuietMonitor.ico
 UninstallDisplayIcon={app}\QuietMonitor.exe
-VersionInfoVersion=0.1.0.6
+VersionInfoVersion=0.1.0.7
 VersionInfoCompany=flennium
 VersionInfoDescription=Quiet Monitor installer
 VersionInfoProductName=Quiet Monitor

@@ -39,9 +39,9 @@ The launcher checks the registered `ms-gamebar:` handler and Windows Game DVR se
 ## Quick start
 
 1. Open the [latest release](https://github.com/flennium/quiet-monitor/releases).
-2. Download `QuietMonitor-v0.1.0-beta.6-setup-win-x64.exe` and run it as administrator. This installs the control center, desktop overlay, certificate, and Game Bar extension together.
+2. Download `QuietMonitor-v0.1.0-beta.7-setup-win-x64.exe` and run it as administrator. This installs the control center, desktop overlay, certificate, and Game Bar extension together.
 3. Leave **Open the Quiet Monitor control center** selected on the final installer page.
-4. Save your preferred mode, readings, appearance, and keybind in the single settings window.
+4. Save your preferred mode, readings, light/dark theme, and shortcut in the single settings window. Click the shortcut control and press the chord you want to record.
 5. Use **Ctrl + Alt + Q** (configurable or disableable) to show or toggle the monitor.
 6. The first time Game Bar opens, choose **Quiet Monitor** from its widget menu and pin it. Game Bar remembers the pin.
 
@@ -59,7 +59,9 @@ QuietMonitor.exe --settings
 - Used and total system memory
 - Used and total video memory
 
-The settings UI controls visible readings, refresh interval, opacity, scale, and placement. Both overlays use a compact score-bug layout with tabular values and high-contrast warning states.
+The settings UI controls visible readings, theme, refresh interval, opacity, scale, placement, and the recorded shortcut. Both overlays use Quiet Monitor's cyan signal-wave identity, compact tabular values, and high-contrast warning states.
+
+CPU temperature depends on firmware and low-level sensor access. If this reading is blocked or unsupported, Quiet Monitor shows **—** instead of the misleading `0 °C` value used by older builds.
 
 ## Architecture
 

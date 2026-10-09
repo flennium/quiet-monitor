@@ -31,7 +31,7 @@ namespace QuietMonitor.SensorBroker
                 if (hardware.HardwareType == HardwareType.Cpu)
                 {
                     snapshot.CpuLoad = Find(sensors, SensorType.Load, "CPU Total") ?? FindMax(sensors, SensorType.Load) ?? 0;
-                    snapshot.CpuTemperature = Find(sensors, SensorType.Temperature, "CPU Package") ?? FindMax(sensors, SensorType.Temperature);
+                    snapshot.CpuTemperature = FindCpuTemperature(sensors);
                 }
                 else if (hardware.HardwareType == HardwareType.GpuAmd || hardware.HardwareType == HardwareType.GpuNvidia || hardware.HardwareType == HardwareType.GpuIntel)
                 {
@@ -68,7 +68,19 @@ namespace QuietMonitor.SensorBroker
 
         private static double? Find(IEnumerable<ISensor> sensors, SensorType type, string name) => sensors.FirstOrDefault(sensor => sensor.SensorType == type && sensor.Name.Equals(name, StringComparison.OrdinalIgnoreCase))?.Value;
         private static double? FindContaining(IEnumerable<ISensor> sensors, SensorType type, string fragment) => sensors.FirstOrDefault(sensor => sensor.SensorType == type && sensor.Name.IndexOf(fragment, StringComparison.OrdinalIgnoreCase) >= 0)?.Value;
-        private static double? FindMax(IEnumerable<ISensor> sensors, SensorType type) => sensors.Where(sensor => sensor.SensorType == type && sensor.Value.HasValue).Select(sensor => (double?)sensor.Value.GetValueOrDefault()).DefaultIfEmpty().Max();
+        private static double? FindMax(IEnumerable<ISensor> sensors, SensorType type) => sensors.Where(sensor => sensor.SensorType == type && IsPlausible(sensor.Value)).Select(sensor => (double?)sensor.Value.GetValueOrDefault()).DefaultIfEmpty().Max();
+
+        internal static double? FindCpuTemperature(IEnumerable<ISensor> sensors)
+        {
+            var temperatures = sensors.Where(sensor => sensor.SensorType == SensorType.Temperature && IsPlausible(sensor.Value)).ToArray();
+            return Find(temperatures, SensorType.Temperature, "CPU Package")
+                ?? FindContaining(temperatures, SensorType.Temperature, "Package")
+                ?? FindContaining(temperatures, SensorType.Temperature, "Average")
+                ?? FindContaining(temperatures, SensorType.Temperature, "Core Max")
+                ?? FindMax(temperatures, SensorType.Temperature);
+        }
+
+        private static bool IsPlausible(float? value) => value.HasValue && value.Value > 0 && value.Value < 150;
 
         private static Tuple<double, double> GetMemory()
         {

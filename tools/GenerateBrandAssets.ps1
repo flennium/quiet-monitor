@@ -7,27 +7,25 @@ function New-QuietMonitorBitmap([int]$width, [int]$height) {
     $bitmap = [System.Drawing.Bitmap]::new($width, $height)
     $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
     $graphics.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::AntiAlias
-    $graphics.Clear([System.Drawing.Color]::FromArgb(11, 16, 23))
+    $graphics.Clear([System.Drawing.Color]::FromArgb(9, 17, 27))
 
     $side = [Math]::Min($width, $height)
     $pad = [Math]::Max(2, [int]($side * 0.15))
     $rect = [System.Drawing.Rectangle]::new([int](($width - $side) / 2 + $pad), $pad, $side - 2 * $pad, $side - 2 * $pad)
-    $blue = [System.Drawing.SolidBrush]::new([System.Drawing.Color]::FromArgb(66, 135, 245))
-    $graphics.FillEllipse($blue, $rect)
+    $cyan = [System.Drawing.SolidBrush]::new([System.Drawing.Color]::FromArgb(89, 214, 231))
+    $graphics.FillEllipse($cyan, $rect)
 
     $penWidth = [Math]::Max(2, [single]($side * 0.055))
-    $whitePen = [System.Drawing.Pen]::new([System.Drawing.Color]::White, $penWidth)
-    $whitePen.StartCap = [System.Drawing.Drawing2D.LineCap]::Round
-    $whitePen.EndCap = [System.Drawing.Drawing2D.LineCap]::Round
-    $cx = $width / 2; $cy = $height / 2; $r = $side * 0.19
-    $graphics.DrawArc($whitePen, [single]($cx - $r), [single]($cy - $r), [single](2 * $r), [single](2 * $r), 35, 295)
-    $graphics.DrawLine($whitePen, [single]($cx + $r * 0.55), [single]($cy + $r * 0.55), [single]($cx + $r * 1.05), [single]($cy + $r * 1.05))
+    $inkPen = [System.Drawing.Pen]::new([System.Drawing.Color]::FromArgb(5, 19, 23), $penWidth)
+    $inkPen.StartCap = [System.Drawing.Drawing2D.LineCap]::Round
+    $inkPen.EndCap = [System.Drawing.Drawing2D.LineCap]::Round
+    $x1 = [single]($width * 0.27); $x2 = [single]($width * 0.40); $x3 = [single]($width * 0.47); $x4 = [single]($width * 0.50)
+    $x5 = [single]($width * 0.53); $x6 = [single]($width * 0.60); $x7 = [single]($width * 0.73)
+    $mid = [single]($height * 0.52); $high = [single]($height * 0.31); $low = [single]($height * 0.73)
+    $graphics.DrawBezier($inkPen, $x1, $mid, $x2, $high, $x3, $high, $x4, $mid)
+    $graphics.DrawBezier($inkPen, $x4, $mid, $x5, $low, $x6, $low, $x7, $mid)
 
-    $mintPen = [System.Drawing.Pen]::new([System.Drawing.Color]::FromArgb(111, 212, 176), [Math]::Max(1, [single]($side * 0.025)))
-    $y = [single]($height - $pad * 0.65)
-    $graphics.DrawLine($mintPen, [single]($width * 0.28), $y, [single]($width * 0.72), $y)
-
-    $mintPen.Dispose(); $whitePen.Dispose(); $blue.Dispose(); $graphics.Dispose()
+    $inkPen.Dispose(); $cyan.Dispose(); $graphics.Dispose()
     return $bitmap
 }
 

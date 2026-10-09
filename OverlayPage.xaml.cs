@@ -9,6 +9,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Windows.UI.ViewManagement;
 
 namespace QuietMonitor
 {
@@ -122,6 +123,9 @@ namespace QuietMonitor
 
         private void ApplySettings()
         {
+            var theme = ReadString(_settings, "Theme", "System");
+            RequestedTheme = theme == "Light" ? ElementTheme.Light : theme == "Dark" ? ElementTheme.Dark : ElementTheme.Default;
+            ApplyTheme(theme == "Light" || theme == "System" && new UISettings().GetColorValue(UIColorType.Background).R > 127);
             _timer.Interval = TimeSpan.FromMilliseconds(ReadInt(_settings, "RefreshIntervalMs", 1000));
             Surface.Opacity = ReadDouble(_settings, "Opacity", 0.9);
             CpuLoadRow.Visibility = Visible(ReadBool(_settings, "ShowCpuLoad", true));
@@ -133,6 +137,22 @@ namespace QuietMonitor
             GpuFanRow.Visibility = Visible(ReadBool(_settings, "ShowGpuFan", false));
             MemoryRow.Visibility = Visible(ReadBool(_settings, "ShowMemory", true));
             VramRow.Visibility = Visible(ReadBool(_settings, "ShowVram", true));
+        }
+
+        private static void ApplyTheme(bool light)
+        {
+            SetBrush("Ink", light ? Color.FromArgb(255, 244, 247, 249) : Color.FromArgb(255, 16, 21, 29));
+            SetBrush("Panel", light ? Colors.White : Color.FromArgb(255, 23, 30, 40));
+            SetBrush("Raised", light ? Color.FromArgb(255, 231, 238, 243) : Color.FromArgb(255, 32, 41, 54));
+            SetBrush("Line", light ? Color.FromArgb(255, 200, 213, 222) : Color.FromArgb(255, 51, 65, 85));
+            SetBrush("Paper", light ? Color.FromArgb(255, 20, 34, 45) : Color.FromArgb(255, 243, 240, 232));
+            SetBrush("Muted", light ? Color.FromArgb(255, 83, 107, 123) : Color.FromArgb(255, 170, 180, 194));
+            SetBrush("Blue", light ? Color.FromArgb(255, 8, 127, 150) : Color.FromArgb(255, 89, 214, 231));
+        }
+
+        private static void SetBrush(string key, Color color)
+        {
+            if (Application.Current.Resources[key] is SolidColorBrush brush) brush.Color = color;
         }
 
         private async Task LoadSettingsAsync()
@@ -156,15 +176,15 @@ namespace QuietMonitor
         private static void SetTemperature(TextBlock text, double? value, double warning, double critical)
         {
             text.Text = value is double temperature ? $"{temperature:0} °C" : "—";
-            var color = value >= critical ? Color.FromArgb(255, 240, 113, 103)
-                : value >= warning ? Color.FromArgb(255, 242, 184, 75)
-                : Color.FromArgb(255, 243, 240, 232);
-            text.Foreground = new SolidColorBrush(color);
+            text.Foreground = value >= critical ? new SolidColorBrush(Color.FromArgb(255, 240, 113, 103))
+                : value >= warning ? new SolidColorBrush(Color.FromArgb(255, 242, 184, 75))
+                : (SolidColorBrush)Application.Current.Resources["Paper"];
         }
 
         private static Visibility Visible(bool value) => value ? Visibility.Visible : Visibility.Collapsed;
         private static bool ReadBool(JsonObject values, string key, bool fallback) => values.ContainsKey(key) && values[key].ValueType == JsonValueType.Boolean ? values[key].GetBoolean() : fallback;
         private static int ReadInt(JsonObject values, string key, int fallback) => values.ContainsKey(key) && values[key].ValueType == JsonValueType.Number ? (int)values[key].GetNumber() : fallback;
         private static double ReadDouble(JsonObject values, string key, double fallback) => values.ContainsKey(key) && values[key].ValueType == JsonValueType.Number ? values[key].GetNumber() : fallback;
+        private static string ReadString(JsonObject values, string key, string fallback) => values.ContainsKey(key) && values[key].ValueType == JsonValueType.String ? values[key].GetString() : fallback;
     }
 }

@@ -15,6 +15,11 @@
                     <TextBlock Text="Appearance" Foreground="{StaticResource Paper}" FontSize="18" FontWeight="SemiBold" />
                     <Grid>
                         <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="190" /></Grid.ColumnDefinitions>
+                        <StackPanel><TextBlock Text="Theme" Foreground="{StaticResource Paper}" FontWeight="SemiBold" /><TextBlock Text="Shared with the control center." Foreground="{StaticResource Muted}" FontSize="12" /></StackPanel>
+                        <ComboBox x:Name="ThemeCombo" Grid.Column="1" SelectionChanged="ThemeChanged"><ComboBoxItem Content="Use Windows setting" Tag="System" /><ComboBoxItem Content="Dark" Tag="Dark" /><ComboBoxItem Content="Light" Tag="Light" /></ComboBox>
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="190" /></Grid.ColumnDefinitions>
                         <StackPanel><TextBlock Text="Opacity" Foreground="{StaticResource Paper}" FontWeight="SemiBold" /><TextBlock x:Name="OpacityValue" Text="90%" Foreground="{StaticResource Muted}" FontSize="12" /></StackPanel>
                         <Slider x:Name="OpacitySlider" Grid.Column="1" Minimum="55" Maximum="100" StepFrequency="5" ValueChanged="OpacityChanged" AutomationProperties.Name="Overlay opacity" />
                     </Grid>

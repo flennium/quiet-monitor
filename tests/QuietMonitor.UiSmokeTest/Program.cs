@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 internal static class Program
 {
@@ -35,18 +36,27 @@ internal static class Program
             var app = (Application)Activator.CreateInstance(appType)!;
             app.ShutdownMode = ShutdownMode.OnExplicitShutdown;
             appType.GetMethod("InitializeComponent")!.Invoke(app, null);
+            var buildHotkey = windowType.GetMethod("BuildHotkey", BindingFlags.Static | BindingFlags.NonPublic)!;
+            Assert((string?)buildHotkey.Invoke(null, new object[] { Key.F10, ModifierKeys.Control | ModifierKeys.Shift }) == "CTRL+SHIFT+F10", "keybind recorder accepts arbitrary supported chords");
+            Assert(buildHotkey.Invoke(null, new object[] { Key.Q, ModifierKeys.None }) == null, "keybind recorder rejects unmodified typing keys");
 
             using (var first = new WindowScope(CreateWindow(windowType)))
             {
                 Assert(Check(first.Window, "PreferGameBarCheck").IsChecked == true, "Game Bar preference defaults on");
-                Assert(SelectedTag(Combo(first.Window, "HotkeyCombo")) == "CTRL+ALT+Q", "hotkey defaults to Ctrl+Alt+Q");
+                Assert(FindButton(first.Window, "HotkeyRecordButton").Content?.ToString() == "Ctrl + Alt + Q", "hotkey recorder shows the default chord");
+                Assert(SelectedTag(Combo(first.Window, "ThemeCombo")) == "System", "theme follows Windows by default");
                 Assert(SelectedTag(Combo(first.Window, "PositionCombo")) == "TopRight", "position defaults to top right");
                 Assert(Math.Abs(Slider(first.Window, "OpacitySlider").Value - 90) < 0.01, "opacity defaults to 90%");
-                Assert(Combo(first.Window, "HotkeyCombo").Foreground.ToString().Equals("#FF111820", StringComparison.OrdinalIgnoreCase), "combo-box text has readable dark contrast");
+                Assert(Combo(first.Window, "ThemeCombo").Foreground.ToString().Equals("#FFF4F8FB", StringComparison.OrdinalIgnoreCase), "dark combo-box text has readable contrast");
                 Assert(Text(first.Window, "GameBarStatus").Text.Contains("Unavailable", StringComparison.OrdinalIgnoreCase), "missing Xbox Game Bar host is detected");
+                SelectTag(Combo(first.Window, "ThemeCombo"), "Light");
+                Assert(first.Window.Background.ToString().Equals("#FFF4F7F9", StringComparison.OrdinalIgnoreCase), "light theme applies immediately");
+                FindButton(first.Window, "HotkeyRecordButton").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+                Assert(FindButton(first.Window, "HotkeyRecordButton").Content?.ToString() == "Press shortcut…", "shortcut control enters recording mode");
 
                 Check(first.Window, "PreferGameBarCheck").IsChecked = false;
-                SelectTag(Combo(first.Window, "HotkeyCombo"), "CTRL+ALT+F10");
+                SetHotkey(first.Window, "CTRL+SHIFT+F10");
+                SelectTag(Combo(first.Window, "ThemeCombo"), "Dark");
                 SelectTag(Combo(first.Window, "PositionCombo"), "BottomLeft");
                 SelectTag(Combo(first.Window, "ScaleCombo"), "1.2");
                 SelectTag(Combo(first.Window, "RefreshCombo"), "2000");
@@ -58,7 +68,7 @@ internal static class Program
             }
 
             ValidateSavedSettings(expectDefaults: false);
-            ValidateShortcut("Alt+Ctrl+F10");
+            ValidateShortcut("Ctrl+Shift+F10");
             ValidatePackageSettingsCopy();
             if (args.Contains("--leave-custom", StringComparer.OrdinalIgnoreCase))
             {
@@ -70,20 +80,22 @@ internal static class Program
             using (var persisted = new WindowScope(CreateWindow(windowType)))
             {
                 Assert(Check(persisted.Window, "PreferGameBarCheck").IsChecked == false, "Game Bar preference reloads");
-                Assert(SelectedTag(Combo(persisted.Window, "HotkeyCombo")) == "CTRL+ALT+F10", "hotkey reloads");
+                Assert(FindButton(persisted.Window, "HotkeyRecordButton").Content?.ToString() == "Ctrl + Shift + F10", "recorded hotkey reloads");
+                Assert(SelectedTag(Combo(persisted.Window, "ThemeCombo")) == "Dark", "theme reloads");
                 Assert(SelectedTag(Combo(persisted.Window, "PositionCombo")) == "BottomLeft", "position reloads");
                 Assert(Math.Abs(Slider(persisted.Window, "OpacitySlider").Value - 75) < 0.01, "opacity reloads");
                 Assert(Check(persisted.Window, "CpuTemperatureCheck").IsChecked == false, "disabled metric reloads");
                 Assert(Check(persisted.Window, "GpuFanCheck").IsChecked == true, "enabled metric reloads");
 
-                SelectTag(Combo(persisted.Window, "HotkeyCombo"), string.Empty);
+                FindButton(persisted.Window, "ClearHotkeyButton").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
                 Click(persisted.Window, "Save");
                 using (var disabled = JsonDocument.Parse(File.ReadAllText(SettingsPath)))
                     Assert(disabled.RootElement.GetProperty("Hotkey").GetString() == string.Empty, "Off keybind persists");
                 ValidateShortcut(string.Empty);
 
                 Check(persisted.Window, "PreferGameBarCheck").IsChecked = true;
-                SelectTag(Combo(persisted.Window, "HotkeyCombo"), "CTRL+ALT+Q");
+                SetHotkey(persisted.Window, "CTRL+ALT+Q");
+                SelectTag(Combo(persisted.Window, "ThemeCombo"), "System");
                 SelectTag(Combo(persisted.Window, "PositionCombo"), "TopRight");
                 SelectTag(Combo(persisted.Window, "ScaleCombo"), "1");
                 SelectTag(Combo(persisted.Window, "RefreshCombo"), "1000");
@@ -114,6 +126,7 @@ internal static class Program
     private static CheckBox Check(Window window, string name) => (CheckBox)window.FindName(name);
     private static ComboBox Combo(Window window, string name) => (ComboBox)window.FindName(name);
     private static Slider Slider(Window window, string name) => (Slider)window.FindName(name);
+    private static Button FindButton(Window window, string name) => (Button)window.FindName(name);
     private static TextBlock Text(Window window, string name) => (TextBlock)window.FindName(name);
 
     private static string SelectedTag(ComboBox combo) => ((ComboBoxItem)combo.SelectedItem).Tag?.ToString() ?? string.Empty;
@@ -121,6 +134,12 @@ internal static class Program
     private static void SelectTag(ComboBox combo, string tag)
     {
         combo.SelectedItem = combo.Items.Cast<ComboBoxItem>().Single(item => (item.Tag?.ToString() ?? string.Empty) == tag);
+    }
+
+    private static void SetHotkey(Window window, string hotkey)
+    {
+        window.GetType().GetField("_hotkey", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(window, hotkey);
+        FindButton(window, "HotkeyRecordButton").Content = string.Join(" + ", hotkey.Split('+').Select(part => part.Length == 1 ? part : char.ToUpperInvariant(part[0]) + part[1..].ToLowerInvariant()));
     }
 
     private static void Click(DependencyObject root, string content)
@@ -143,7 +162,8 @@ internal static class Program
         using var json = JsonDocument.Parse(File.ReadAllText(SettingsPath));
         var root = json.RootElement;
         Assert(root.GetProperty("UseGameBarWhenAvailable").GetBoolean() == expectDefaults, "Game Bar setting persisted");
-        Assert(root.GetProperty("Hotkey").GetString() == (expectDefaults ? "CTRL+ALT+Q" : "CTRL+ALT+F10"), "hotkey persisted");
+        Assert(root.GetProperty("Hotkey").GetString() == (expectDefaults ? "CTRL+ALT+Q" : "CTRL+SHIFT+F10"), "hotkey persisted");
+        Assert(root.GetProperty("Theme").GetString() == (expectDefaults ? "System" : "Dark"), "theme persisted");
         Assert(root.GetProperty("Position").GetString() == (expectDefaults ? "TopRight" : "BottomLeft"), "position persisted");
         Assert(root.GetProperty("RefreshIntervalMs").GetInt32() == (expectDefaults ? 1000 : 2000), "refresh interval persisted");
         Assert(Math.Abs(root.GetProperty("Opacity").GetDouble() - (expectDefaults ? 0.9 : 0.75)) < 0.001, "opacity persisted");

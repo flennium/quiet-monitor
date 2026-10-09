@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Threading;
+using Microsoft.Win32;
 using QuietMonitor.Models;
 using QuietMonitor.Services;
 
@@ -38,6 +39,7 @@ public partial class OverlayWindow : Window
     public void ApplySettings(AppSettings settings)
     {
         _settings = settings;
+        ApplyTheme(settings.Theme);
         _timer.Interval = TimeSpan.FromMilliseconds(settings.RefreshIntervalMs);
         OverlaySurface.Opacity = settings.Opacity;
         Width = BaseWidth * settings.Scale;
@@ -54,6 +56,23 @@ public partial class OverlayWindow : Window
         MemoryRow.Visibility = Visible(settings.ShowMemory);
         VramRow.Visibility = Visible(settings.ShowVram);
         Dispatcher.BeginInvoke(PositionOverlay, DispatcherPriority.Loaded);
+    }
+
+    private void ApplyTheme(string theme)
+    {
+        var light = theme == "Light" || theme == "System" && Registry.GetValue(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize", "AppsUseLightTheme", 0) is int value && value != 0;
+        SetBrush("Panel", light ? "#F2F7F9" : "#171E28", (byte)(light ? 238 : 230));
+        SetBrush("Line", light ? "#A9C0CD" : "#2D3948");
+        SetBrush("Paper", light ? "#10222E" : "#F3F0E8");
+        SetBrush("Muted", light ? "#476273" : "#AAB4C2");
+        SetBrush("Blue", light ? "#087F96" : "#59D6E7");
+    }
+
+    private static void SetBrush(string key, string hex, byte alpha = 255)
+    {
+        var color = (Color)ColorConverter.ConvertFromString(hex);
+        color.A = alpha;
+        Application.Current.Resources[key] = new SolidColorBrush(color);
     }
 
     private async Task UpdateReadingsAsync()
@@ -100,10 +119,9 @@ public partial class OverlayWindow : Window
 
     private static void ApplyTemperatureColor(System.Windows.Controls.TextBlock text, double? value, double warning, double critical)
     {
-        var color = value >= critical ? Color.FromRgb(240, 113, 103)
-            : value >= warning ? Color.FromRgb(242, 184, 75)
-            : Color.FromRgb(244, 241, 233);
-        text.Foreground = new SolidColorBrush(color);
+        text.Foreground = value >= critical ? new SolidColorBrush(Color.FromRgb(240, 113, 103))
+            : value >= warning ? new SolidColorBrush(Color.FromRgb(242, 184, 75))
+            : (SolidColorBrush)Application.Current.Resources["Paper"];
     }
 
     private void Window_SourceInitialized(object? sender, EventArgs e)

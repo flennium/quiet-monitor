@@ -1,9 +1,9 @@
 <Project>
   <PropertyGroup>
     <VersionPrefix>0.1.0</VersionPrefix>
-    <VersionSuffix>beta.6</VersionSuffix>
-    <AssemblyVersion>0.1.0.6</AssemblyVersion>
-    <FileVersion>0.1.0.6</FileVersion>
-    <InformationalVersion>0.1.0-beta.6</InformationalVersion>
+    <VersionSuffix>beta.7</VersionSuffix>
+    <AssemblyVersion>0.1.0.7</AssemblyVersion>
+    <FileVersion>0.1.0.7</FileVersion>
+    <InformationalVersion>0.1.0-beta.7</InformationalVersion>
   </PropertyGroup>
 </Project>

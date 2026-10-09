@@ -8,12 +8,12 @@
         SourceInitialized="Window_SourceInitialized" Loaded="Window_Loaded" Closed="Window_Closed">
     <Window.Resources>
         <Style x:Key="MetricLabel" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#AEB9C7" />
+            <Setter Property="Foreground" Value="{DynamicResource Muted}" />
             <Setter Property="FontFamily" Value="Segoe UI Variable Text" />
             <Setter Property="FontSize" Value="12" />
         </Style>
         <Style x:Key="MetricValue" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#F4F1E9" />
+            <Setter Property="Foreground" Value="{DynamicResource Paper}" />
             <Setter Property="FontFamily" Value="Segoe UI Variable Display" />
             <Setter Property="FontSize" Value="15" />
             <Setter Property="FontWeight" Value="SemiBold" />
@@ -24,19 +24,19 @@
         </Style>
     </Window.Resources>
 
-    <Border x:Name="OverlaySurface" Background="#E6111720" CornerRadius="8" BorderBrush="#405064" BorderThickness="1" Padding="13,10,13,12">
+    <Border x:Name="OverlaySurface" Background="{DynamicResource Panel}" CornerRadius="10" BorderBrush="{DynamicResource Line}" BorderThickness="1" Padding="13,10,13,12">
         <Grid>
             <Grid.RowDefinitions><RowDefinition Height="3" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
-            <Border Background="#60A5FA" CornerRadius="2" />
+            <Border Background="{DynamicResource Blue}" CornerRadius="2" />
             <Grid Grid.Row="1" Margin="0,10,0,8">
-                <TextBlock Text="Quiet Monitor" Foreground="#F4F1E9" FontFamily="Segoe UI Variable Display" FontSize="12" FontWeight="SemiBold" />
+                <StackPanel Orientation="Horizontal"><Path Stroke="{DynamicResource Blue}" StrokeThickness="2.2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Data="M 0,7 C 3,1 6,1 9,7 C 12,13 15,13 18,7" Width="18" Height="14" Stretch="Fill" Margin="0,0,8,0"/><TextBlock Text="Quiet Monitor" Foreground="{DynamicResource Paper}" FontFamily="Segoe UI Variable Display" FontSize="12" FontWeight="SemiBold" /></StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <Ellipse x:Name="LiveDot" Width="6" Height="6" Fill="#6FD4B0" Margin="0,0,6,0" />
-                    <TextBlock Text="Live" Foreground="#AEB9C7" FontSize="10" />
+                    <TextBlock Text="Live" Foreground="{DynamicResource Muted}" FontSize="10" />
                 </StackPanel>
             </Grid>
             <StackPanel Grid.Row="2">
-                <Border Height="1" Background="#314052" Margin="0,0,0,7" />
+                <Border Height="1" Background="{DynamicResource Line}" Margin="0,0,0,7" />
                 <Grid x:Name="CpuLoadRow" Style="{StaticResource MetricRow}"><TextBlock Text="CPU" Style="{StaticResource MetricLabel}" /><TextBlock x:Name="CpuLoadText" Text="—" Style="{StaticResource MetricValue}" /></Grid>
                 <Grid x:Name="CpuTemperatureRow" Style="{StaticResource MetricRow}"><TextBlock Text="CPU temp" Style="{StaticResource MetricLabel}" /><TextBlock x:Name="CpuTemperatureText" Text="—" Style="{StaticResource MetricValue}" /></Grid>
                 <Grid x:Name="GpuLoadRow" Style="{StaticResource MetricRow}"><TextBlock Text="GPU" Style="{StaticResource MetricLabel}" /><TextBlock x:Name="GpuLoadText" Text="—" Style="{StaticResource MetricValue}" /></Grid>

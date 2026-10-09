@@ -8,6 +8,7 @@ public sealed class LauncherSettings
 {
     public bool UseGameBarWhenAvailable { get; set; } = true;
     public string Hotkey { get; set; } = "CTRL+ALT+Q";
+    public string Theme { get; set; } = "System";
     public int RefreshIntervalMs { get; set; } = 1000;
     public string Position { get; set; } = "TopRight";
     public double Scale { get; set; } = 1.0;

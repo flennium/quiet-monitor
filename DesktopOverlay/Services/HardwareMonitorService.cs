@@ -50,7 +50,7 @@ public sealed class HardwareMonitorService : IDisposable
             if (hardware.HardwareType == HardwareType.Cpu)
             {
                 cpuLoad = Find(sensors, SensorType.Load, "CPU Total") ?? FindMax(sensors, SensorType.Load) ?? 0;
-                cpuTemp = Find(sensors, SensorType.Temperature, "CPU Package") ?? FindMax(sensors, SensorType.Temperature);
+                cpuTemp = FindCpuTemperature(sensors);
             }
             else if (hardware.HardwareType is HardwareType.GpuAmd or HardwareType.GpuNvidia or HardwareType.GpuIntel)
             {
@@ -83,7 +83,19 @@ public sealed class HardwareMonitorService : IDisposable
         sensors.FirstOrDefault(s => s.SensorType == type && s.Name.Contains(fragment, StringComparison.OrdinalIgnoreCase))?.Value;
 
     private static double? FindMax(IEnumerable<ISensor> sensors, SensorType type) =>
-        sensors.Where(s => s.SensorType == type && s.Value.HasValue).Select(s => (double?)s.Value!.Value).DefaultIfEmpty().Max();
+        sensors.Where(s => s.SensorType == type && IsPlausible(s.Value)).Select(s => (double?)s.Value!.Value).DefaultIfEmpty().Max();
+
+    internal static double? FindCpuTemperature(IEnumerable<ISensor> sensors)
+    {
+        var temperatures = sensors.Where(s => s.SensorType == SensorType.Temperature && IsPlausible(s.Value)).ToArray();
+        return Find(temperatures, SensorType.Temperature, "CPU Package")
+            ?? FindContaining(temperatures, SensorType.Temperature, "Package")
+            ?? FindContaining(temperatures, SensorType.Temperature, "Average")
+            ?? FindContaining(temperatures, SensorType.Temperature, "Core Max")
+            ?? FindMax(temperatures, SensorType.Temperature);
+    }
+
+    private static bool IsPlausible(float? value) => value is > 0 and < 150;
 
     private static (double UsedGb, double TotalGb) GetMemory()
     {

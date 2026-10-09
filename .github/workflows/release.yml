@@ -94,7 +94,10 @@ jobs:
 
           Highlights
 
-          - One control center configures Game Bar preference, desktop placement, size, opacity, refresh interval, visible sensors, and the global show/toggle shortcut.
+          - A redesigned, branded control center configures both overlay modes from one place.
+          - Record almost any Ctrl/Alt/Shift shortcut directly, with no resident hotkey process.
+          - System, dark, and light themes apply across the control center and overlays.
+          - Missing CPU temperature sensors now show as unavailable instead of a false 0 °C.
           - Xbox Game Bar is preferred by default with automatic desktop fallback.
           - Ctrl+Alt+Q toggles the monitor by default without a resident hotkey process.
           - No startup entry, service, tray process, game injection, analytics, or network client.

@@ -10,3 +10,7 @@ artifacts/
 *.cer
 *.pfx
 TestResults/
+# Local Impeccable design working records; public documentation lives in docs/.
+PRODUCT.md
+DESIGN.md
+.impeccable/

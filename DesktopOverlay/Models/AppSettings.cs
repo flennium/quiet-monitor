@@ -3,6 +3,7 @@ namespace QuietMonitor.Models;
 public sealed class AppSettings
 {
     public int RefreshIntervalMs { get; set; } = 1000;
+    public string Theme { get; set; } = "System";
     public string Position { get; set; } = "TopRight";
     public double Scale { get; set; } = 1.0;
     public double Opacity { get; set; } = 0.9;
