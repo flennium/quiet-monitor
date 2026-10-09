@@ -1,5 +1,5 @@
 $ErrorActionPreference = 'Stop'
-Add-Type -AssemblyName System.Drawing.Common
+Add-Type -AssemblyName System.Drawing
 
 $root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
 
@@ -44,4 +44,18 @@ $writer.Write($png); $writer.Flush()
 [System.IO.File]::WriteAllBytes((Join-Path $root 'Installer\QuietMonitor.ico'), $ico.ToArray())
 $writer.Dispose(); $ico.Dispose(); $pngStream.Dispose(); $iconBitmap.Dispose()
 
-Write-Host 'Generated Installer\QuietMonitor.ico'
+$assetDirectory = Join-Path $root 'Assets'
+$assetCount = 0
+Get-ChildItem -LiteralPath $assetDirectory -Filter '*.png' -File | ForEach-Object {
+    $existing = [System.Drawing.Image]::FromFile($_.FullName)
+    $width = $existing.Width
+    $height = $existing.Height
+    $existing.Dispose()
+
+    $assetBitmap = New-QuietMonitorBitmap $width $height
+    $assetBitmap.Save($_.FullName, [System.Drawing.Imaging.ImageFormat]::Png)
+    $assetBitmap.Dispose()
+    $assetCount++
+}
+
+Write-Host "Generated Installer\QuietMonitor.ico and $assetCount Game Bar assets"
