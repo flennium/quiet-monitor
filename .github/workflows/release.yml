@@ -30,7 +30,8 @@ jobs:
           $windowsVersion = $manifest.Package.Identity.Version
           "VERSION=$version" >> $env:GITHUB_ENV
           "WINDOWS_VERSION=$windowsVersion" >> $env:GITHUB_ENV
-          if (git ls-remote --exit-code --tags origin "refs/tags/v$version") { throw "Tag v$version already exists. Update VERSION before publishing." }
+          $existingTag = git ls-remote --tags origin "refs/tags/v$version"
+          if ($existingTag) { throw "Tag v$version already exists. Update VERSION before publishing." }
 
       - name: Restore release signing certificate
         shell: pwsh
