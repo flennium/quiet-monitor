@@ -185,6 +185,7 @@
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.2.14</Version>
     </PackageReference>
+    <SDKReference Include="WindowsDesktop, Version=$(TargetPlatformVersion)" />
   </ItemGroup>
 
   <Target Name="IncludeSensorBrokerPayload" BeforeTargets="_GenerateAppxPackageRecipe">
