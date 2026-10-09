@@ -15,6 +15,14 @@ jobs:
       - name: Build desktop components
         shell: pwsh
         run: .\build.ps1 -DesktopOnly
+      - name: Package desktop fallback
+        shell: pwsh
+        run: .\package.ps1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: QuietMonitor-desktop-win-x64
+          path: artifacts/QuietMonitor
+          if-no-files-found: error
 
   game-bar:
     runs-on: windows-latest
@@ -27,3 +35,8 @@ jobs:
       - name: Restore and build Xbox Game Bar widget
         shell: pwsh
         run: msbuild QuietMonitor.csproj /restore /t:Build /p:Configuration=Release /p:Platform=x64 /p:AppxPackageSigningEnabled=false
+      - uses: actions/upload-artifact@v4
+        with:
+          name: QuietMonitor-game-bar-x64
+          path: AppPackages/QuietMonitor_1.0.0.0_Test
+          if-no-files-found: error
