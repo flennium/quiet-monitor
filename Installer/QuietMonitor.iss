@@ -1,5 +1,5 @@
 #ifndef AppVersion
-#define AppVersion "0.1.0-beta.4"
+#define AppVersion "0.1.0-beta.5"
 #endif
 #ifndef CertThumbprint
   #define CertThumbprint "876A918726367882CA91C931386E5D6FB4EE10B0"
@@ -26,7 +26,7 @@ SolidCompression=yes
 WizardStyle=modern
 SetupIconFile=QuietMonitor.ico
 UninstallDisplayIcon={app}\QuietMonitor.exe
-VersionInfoVersion=0.1.0.4
+VersionInfoVersion=0.1.0.5
 VersionInfoCompany=flennium
 VersionInfoDescription=Quiet Monitor installer
 VersionInfoProductName=Quiet Monitor
@@ -37,9 +37,14 @@ Source: "..\staging\GameBarPackage\*"; DestDir: "{app}\GameBarPackage"; Flags: i
 Source: "QuietMonitor.cer"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
-Name: "{group}\Quiet Monitor"; Filename: "{app}\QuietMonitor.exe"; HotKey: "ctrl+alt+q"
-Name: "{group}\Quiet Monitor Settings"; Filename: "{app}\QuietMonitor.exe"; Parameters: "--settings"
-Name: "{autodesktop}\Quiet Monitor"; Filename: "{app}\QuietMonitor.exe"; HotKey: "ctrl+alt+q"; Tasks: desktopicon
+Name: "{userprograms}\Quiet Monitor\Quiet Monitor"; Filename: "{app}\QuietMonitor.exe"; HotKey: "ctrl+alt+q"
+Name: "{userprograms}\Quiet Monitor\Quiet Monitor Settings"; Filename: "{app}\QuietMonitor.exe"; Parameters: "--settings"
+Name: "{userdesktop}\Quiet Monitor"; Filename: "{app}\QuietMonitor.exe"; HotKey: "ctrl+alt+q"; Tasks: desktopicon
+
+[InstallDelete]
+Type: files; Name: "{commonprograms}\Quiet Monitor\Quiet Monitor.lnk"
+Type: files; Name: "{commonprograms}\Quiet Monitor\Quiet Monitor Settings.lnk"
+Type: files; Name: "{commondesktop}\Quiet Monitor.lnk"
 
 [Tasks]
 Name: "desktopicon"; Description: "Create a &desktop shortcut"; GroupDescription: "Shortcuts:"; Flags: checkedonce
@@ -52,3 +57,7 @@ Filename: "{app}\QuietMonitor.exe"; Parameters: "--settings"; Description: "Open
 [UninstallRun]
 Filename: "{sys}\WindowsPowerShell\v1.0\powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -Command ""Get-AppxPackage flennium.QuietMonitor | Remove-AppxPackage"""; Flags: runhidden waituntilterminated
 Filename: "{sys}\certutil.exe"; Parameters: "-delstore TrustedPeople {#CertThumbprint}"; Flags: runhidden waituntilterminated
+
+[UninstallDelete]
+Type: filesandordirs; Name: "{localappdata}\QuietMonitor"
+Type: dirifempty; Name: "{userprograms}\Quiet Monitor"

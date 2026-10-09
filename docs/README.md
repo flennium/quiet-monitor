@@ -39,7 +39,7 @@ The launcher checks the registered `ms-gamebar:` handler and Windows Game DVR se
 ## Quick start
 
 1. Open the [latest release](https://github.com/flennium/quiet-monitor/releases).
-2. Download `QuietMonitor-v0.1.0-beta.4-setup-win-x64.exe` and run it as administrator. This installs the control center, desktop overlay, certificate, and Game Bar extension together.
+2. Download `QuietMonitor-v0.1.0-beta.5-setup-win-x64.exe` and run it as administrator. This installs the control center, desktop overlay, certificate, and Game Bar extension together.
 3. Leave **Open the Quiet Monitor control center** selected on the final installer page.
 4. Save your preferred mode, readings, appearance, and keybind in the single settings window.
 5. Use **Ctrl + Alt + Q** (configurable or disableable) to show or toggle the monitor.
@@ -119,6 +119,7 @@ Quiet Monitor reads sensors locally and does not collect analytics, transmit dat
 ## Project links
 
 - [Contributing](CONTRIBUTING.md)
+- [Testing and release checklist](TESTING.md)
 - [Third-party notices](NOTICE.md)
 - [Versioning and release channels](VERSIONING.md)
 - [MIT License](../LICENSE)

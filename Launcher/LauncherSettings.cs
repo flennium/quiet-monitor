@@ -70,30 +70,67 @@ public sealed class LauncherSettings
 
     private void ApplyShortcutHotkey()
     {
-        string[] shortcuts =
-        {
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "Quiet Monitor.lnk"),
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonStartMenu), "Programs", "Quiet Monitor", "Quiet Monitor.lnk")
-        };
-
         var shellType = Type.GetTypeFromProgID("WScript.Shell");
         if (shellType == null) return;
         var shell = Activator.CreateInstance(shellType);
         if (shell == null) return;
         try
         {
-            foreach (var shortcutPath in shortcuts.Where(File.Exists))
+            var programsDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Programs);
+            var userShortcutPath = Path.Combine(programsDirectory, "Quiet Monitor", "Quiet Monitor.lnk");
+            Directory.CreateDirectory(Path.GetDirectoryName(userShortcutPath)!);
+            SaveShortcut(shellType, shell, userShortcutPath, createIfMissing: true);
+
+            string[] optionalShortcuts =
             {
-                var shortcut = shellType.InvokeMember("CreateShortcut", BindingFlags.InvokeMethod, null, shell, new object[] { shortcutPath });
-                if (shortcut == null) continue;
-                shortcut.GetType().InvokeMember("Hotkey", BindingFlags.SetProperty, null, shortcut, new object[] { Hotkey });
-                shortcut.GetType().InvokeMember("Save", BindingFlags.InvokeMethod, null, shortcut, null);
-                if (System.Runtime.InteropServices.Marshal.IsComObject(shortcut)) System.Runtime.InteropServices.Marshal.FinalReleaseComObject(shortcut);
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "Quiet Monitor.lnk"),
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonStartMenu), "Programs", "Quiet Monitor", "Quiet Monitor.lnk")
+            };
+            foreach (var shortcutPath in optionalShortcuts.Where(File.Exists))
+            {
+                try
+                {
+                    SaveShortcut(shellType, shell, shortcutPath, createIfMissing: false);
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    // Older installers created an administrator-owned common shortcut.
+                    // The per-user shortcut above remains configurable without elevation.
+                }
+                catch (TargetInvocationException exception) when (exception.InnerException is UnauthorizedAccessException)
+                {
+                    // WScript reports access failures through COM invocation exceptions.
+                }
             }
         }
         finally
         {
             if (System.Runtime.InteropServices.Marshal.IsComObject(shell)) System.Runtime.InteropServices.Marshal.FinalReleaseComObject(shell);
+        }
+    }
+
+    private void SaveShortcut(Type shellType, object shell, string shortcutPath, bool createIfMissing)
+    {
+        var shortcut = shellType.InvokeMember("CreateShortcut", BindingFlags.InvokeMethod, null, shell, new object[] { shortcutPath });
+        if (shortcut == null) return;
+        try
+        {
+            if (createIfMissing)
+            {
+                var executablePath = Environment.ProcessPath;
+                if (!string.Equals(Path.GetFileName(executablePath), "QuietMonitor.exe", StringComparison.OrdinalIgnoreCase))
+                    executablePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Quiet Monitor", "QuietMonitor.exe");
+                shortcut.GetType().InvokeMember("TargetPath", BindingFlags.SetProperty, null, shortcut, new object[] { executablePath! });
+                shortcut.GetType().InvokeMember("WorkingDirectory", BindingFlags.SetProperty, null, shortcut, new object[] { Path.GetDirectoryName(executablePath)! });
+                shortcut.GetType().InvokeMember("Description", BindingFlags.SetProperty, null, shortcut, new object[] { "Show or hide Quiet Monitor" });
+                shortcut.GetType().InvokeMember("IconLocation", BindingFlags.SetProperty, null, shortcut, new object[] { executablePath! });
+            }
+            shortcut.GetType().InvokeMember("Hotkey", BindingFlags.SetProperty, null, shortcut, new object[] { Hotkey });
+            shortcut.GetType().InvokeMember("Save", BindingFlags.InvokeMethod, null, shortcut, null);
+        }
+        finally
+        {
+            if (System.Runtime.InteropServices.Marshal.IsComObject(shortcut)) System.Runtime.InteropServices.Marshal.FinalReleaseComObject(shortcut);
         }
     }
 }

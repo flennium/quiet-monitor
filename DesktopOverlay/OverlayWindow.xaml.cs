@@ -10,6 +10,7 @@ namespace QuietMonitor;
 
 public partial class OverlayWindow : Window
 {
+    private const double BaseWidth = 272;
     private const int GwlExStyle = -20;
     private const int WsExTransparent = 0x00000020;
     private const int WsExToolWindow = 0x00000080;
@@ -39,7 +40,10 @@ public partial class OverlayWindow : Window
         _settings = settings;
         _timer.Interval = TimeSpan.FromMilliseconds(settings.RefreshIntervalMs);
         OverlaySurface.Opacity = settings.Opacity;
-        LayoutTransform = new ScaleTransform(settings.Scale, settings.Scale);
+        Width = BaseWidth * settings.Scale;
+        MinWidth = Width;
+        MaxWidth = Width;
+        OverlaySurface.LayoutTransform = new ScaleTransform(settings.Scale, settings.Scale);
         CpuLoadRow.Visibility = Visible(settings.ShowCpuLoad);
         CpuTemperatureRow.Visibility = Visible(settings.ShowCpuTemperature);
         GpuLoadRow.Visibility = Visible(settings.ShowGpuLoad);
