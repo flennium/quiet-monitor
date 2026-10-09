@@ -73,6 +73,8 @@
               </GameBarWidget>
             </uap3:Properties>
           </uap3:AppExtension>
+        </uap3:Extension>
+        <uap3:Extension Category="windows.appExtension">
           <uap3:AppExtension Name="microsoft.gameBarUIExtension"
                              Id="QuietMonitor.Settings"
                              DisplayName="Quiet Monitor settings"
