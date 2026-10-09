@@ -1,0 +1,12 @@
+bin/
+obj/
+.vs/
+artifacts/
+*.user
+*.suo
+*.appx
+*.appxbundle
+*.appxupload
+*.cer
+*.pfx
+TestResults/

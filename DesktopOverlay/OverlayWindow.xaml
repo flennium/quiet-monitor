@@ -1,0 +1,52 @@
+<Window x:Class="QuietMonitor.OverlayWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Quiet Monitor overlay"
+        Width="272" SizeToContent="Height" WindowStyle="None" ResizeMode="NoResize"
+        AllowsTransparency="True" Background="Transparent" ShowInTaskbar="False"
+        Topmost="True" Focusable="False" IsHitTestVisible="False"
+        SourceInitialized="Window_SourceInitialized" Loaded="Window_Loaded" Closed="Window_Closed">
+    <Window.Resources>
+        <Style x:Key="MetricLabel" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#AEB9C7" />
+            <Setter Property="FontFamily" Value="Segoe UI Variable Text" />
+            <Setter Property="FontSize" Value="12" />
+        </Style>
+        <Style x:Key="MetricValue" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#F4F1E9" />
+            <Setter Property="FontFamily" Value="Segoe UI Variable Display" />
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="TextAlignment" Value="Right" />
+        </Style>
+        <Style x:Key="MetricRow" TargetType="Grid">
+            <Setter Property="Margin" Value="0,4" />
+        </Style>
+    </Window.Resources>
+
+    <Border x:Name="OverlaySurface" Background="#E6111720" CornerRadius="8" BorderBrush="#405064" BorderThickness="1" Padding="13,10,13,12">
+        <Grid>
+            <Grid.RowDefinitions><RowDefinition Height="3" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+            <Border Background="#60A5FA" CornerRadius="2" />
+            <Grid Grid.Row="1" Margin="0,10,0,8">
+                <TextBlock Text="Quiet Monitor" Foreground="#F4F1E9" FontFamily="Segoe UI Variable Display" FontSize="12" FontWeight="SemiBold" />
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Ellipse x:Name="LiveDot" Width="6" Height="6" Fill="#6FD4B0" Margin="0,0,6,0" />
+                    <TextBlock Text="Live" Foreground="#AEB9C7" FontSize="10" />
+                </StackPanel>
+            </Grid>
+            <StackPanel Grid.Row="2">
+                <Border Height="1" Background="#314052" Margin="0,0,0,7" />
+                <Grid x:Name="CpuLoadRow" Style="{StaticResource MetricRow}"><TextBlock Text="CPU" Style="{StaticResource MetricLabel}" /><TextBlock x:Name="CpuLoadText" Text="—" Style="{StaticResource MetricValue}" /></Grid>
+                <Grid x:Name="CpuTemperatureRow" Style="{StaticResource MetricRow}"><TextBlock Text="CPU temp" Style="{StaticResource MetricLabel}" /><TextBlock x:Name="CpuTemperatureText" Text="—" Style="{StaticResource MetricValue}" /></Grid>
+                <Grid x:Name="GpuLoadRow" Style="{StaticResource MetricRow}"><TextBlock Text="GPU" Style="{StaticResource MetricLabel}" /><TextBlock x:Name="GpuLoadText" Text="—" Style="{StaticResource MetricValue}" /></Grid>
+                <Grid x:Name="GpuTemperatureRow" Style="{StaticResource MetricRow}"><TextBlock Text="GPU temp" Style="{StaticResource MetricLabel}" /><TextBlock x:Name="GpuTemperatureText" Text="—" Style="{StaticResource MetricValue}" /></Grid>
+                <Grid x:Name="GpuHotspotRow" Style="{StaticResource MetricRow}"><TextBlock Text="Hotspot" Style="{StaticResource MetricLabel}" /><TextBlock x:Name="GpuHotspotText" Text="—" Style="{StaticResource MetricValue}" /></Grid>
+                <Grid x:Name="GpuPowerRow" Style="{StaticResource MetricRow}"><TextBlock Text="GPU power" Style="{StaticResource MetricLabel}" /><TextBlock x:Name="GpuPowerText" Text="—" Style="{StaticResource MetricValue}" /></Grid>
+                <Grid x:Name="GpuFanRow" Style="{StaticResource MetricRow}"><TextBlock Text="GPU fan" Style="{StaticResource MetricLabel}" /><TextBlock x:Name="GpuFanText" Text="—" Style="{StaticResource MetricValue}" /></Grid>
+                <Grid x:Name="MemoryRow" Style="{StaticResource MetricRow}"><TextBlock Text="Memory" Style="{StaticResource MetricLabel}" /><TextBlock x:Name="MemoryText" Text="—" Style="{StaticResource MetricValue}" /></Grid>
+                <Grid x:Name="VramRow" Style="{StaticResource MetricRow}"><TextBlock Text="VRAM" Style="{StaticResource MetricLabel}" /><TextBlock x:Name="VramText" Text="—" Style="{StaticResource MetricValue}" /></Grid>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>
