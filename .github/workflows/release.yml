@@ -51,6 +51,7 @@ jobs:
         env:
           PFX_PASSWORD: ${{ secrets.QUIETMONITOR_PFX_PASSWORD }}
           CERT_THUMBPRINT: ${{ secrets.QUIETMONITOR_CERT_THUMBPRINT }}
+          CERT_THUMBPRINT: ${{ secrets.QUIETMONITOR_CERT_THUMBPRINT }}
         run: |
           msbuild QuietMonitor.csproj /restore /t:Build /p:Configuration=Release /p:Platform=x64 /p:AppxPackageSigningEnabled=true /p:PackageCertificateKeyFile="$pwd\Installer\QuietMonitor.Release.pfx" /p:PackageCertificatePassword="$env:PFX_PASSWORD" /p:PackageCertificateThumbprint="$env:CERT_THUMBPRINT"
 
@@ -65,9 +66,18 @@ jobs:
 
       - name: Build unified installer
         shell: pwsh
+        env:
+          PFX_PASSWORD: ${{ secrets.QUIETMONITOR_PFX_PASSWORD }}
         run: |
           choco install innosetup --yes --no-progress
           & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DAppVersion=$env:VERSION" "/DCertThumbprint=${{ secrets.QUIETMONITOR_CERT_THUMBPRINT }}" Installer\QuietMonitor.iss
+          $signTool = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin" -Recurse -Filter signtool.exe | Where-Object FullName -Match '\\x64\\signtool.exe$' | Sort-Object FullName -Descending | Select-Object -First 1
+          if (-not $signTool) { throw 'signtool.exe was not found.' }
+          $installer = Get-ChildItem artifacts\installer -Filter *.exe | Select-Object -First 1
+          & $signTool.FullName sign /fd SHA256 /f Installer\QuietMonitor.Release.pfx /p $env:PFX_PASSWORD /tr http://timestamp.digicert.com /td SHA256 $installer.FullName
+          if ($LASTEXITCODE -ne 0) { throw 'Installer signing failed.' }
+          $signature = Get-AuthenticodeSignature $installer.FullName
+          if (-not $signature.SignerCertificate -or $signature.SignerCertificate.Thumbprint -ne $env:CERT_THUMBPRINT) { throw 'Installer signature verification failed.' }
 
       - name: Create release archives and notes
         shell: pwsh
