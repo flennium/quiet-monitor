@@ -51,7 +51,6 @@ jobs:
         env:
           PFX_PASSWORD: ${{ secrets.QUIETMONITOR_PFX_PASSWORD }}
           CERT_THUMBPRINT: ${{ secrets.QUIETMONITOR_CERT_THUMBPRINT }}
-          CERT_THUMBPRINT: ${{ secrets.QUIETMONITOR_CERT_THUMBPRINT }}
         run: |
           msbuild QuietMonitor.csproj /restore /t:Build /p:Configuration=Release /p:Platform=x64 /p:AppxPackageSigningEnabled=true /p:PackageCertificateKeyFile="$pwd\Installer\QuietMonitor.Release.pfx" /p:PackageCertificatePassword="$env:PFX_PASSWORD" /p:PackageCertificateThumbprint="$env:CERT_THUMBPRINT"
 
@@ -68,6 +67,7 @@ jobs:
         shell: pwsh
         env:
           PFX_PASSWORD: ${{ secrets.QUIETMONITOR_PFX_PASSWORD }}
+          CERT_THUMBPRINT: ${{ secrets.QUIETMONITOR_CERT_THUMBPRINT }}
         run: |
           choco install innosetup --yes --no-progress
           & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DAppVersion=$env:VERSION" "/DCertThumbprint=${{ secrets.QUIETMONITOR_CERT_THUMBPRINT }}" Installer\QuietMonitor.iss
