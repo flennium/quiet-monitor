@@ -38,5 +38,5 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: QuietMonitor-game-bar-x64
-          path: AppPackages/QuietMonitor_1.0.0.0_Test
+          path: AppPackages/QuietMonitor_*_Test
           if-no-files-found: error

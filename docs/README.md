@@ -38,11 +38,12 @@ The launcher checks the registered `ms-gamebar:` handler and Windows Game DVR se
 
 ## Quick start
 
-1. Download both build artifacts from the latest successful [GitHub Actions run](https://github.com/flennium/quiet-monitor/actions/workflows/build.yml).
-2. Install the Game Bar test package from the `QuietMonitor-game-bar-x64` artifact if Xbox Game Bar is installed.
-3. Extract `QuietMonitor-desktop-win-x64` and keep its `DesktopOverlay` folder beside `QuietMonitor.exe`.
-4. Use **Quiet Monitor.lnk** to open or toggle the monitor.
-5. The first time Game Bar opens, choose **Quiet Monitor** from its widget menu and pin it. Game Bar remembers the pin.
+1. Open the [latest GitHub Release](https://github.com/flennium/quiet-monitor/releases/latest).
+2. Download `QuietMonitor-v0.1.0-beta.1-desktop-win-x64.zip` for the launcher and automatic desktop fallback.
+3. If Xbox Game Bar is installed, also download `QuietMonitor-v0.1.0-beta.1-game-bar-x64.zip`, extract it, and run `Install.ps1` from PowerShell.
+4. Extract the desktop ZIP and keep its `DesktopOverlay` folder beside `QuietMonitor.exe`.
+5. Use **Quiet Monitor.lnk** to open or toggle the monitor.
+6. The first time Game Bar opens, choose **Quiet Monitor** from its widget menu and pin it. Game Bar remembers the pin.
 
 Use **Quiet Monitor Settings.lnk** to choose the desktop overlay permanently, or run:
 
@@ -119,8 +120,9 @@ Quiet Monitor reads sensors locally and does not collect analytics, transmit dat
 
 - [Contributing](CONTRIBUTING.md)
 - [Third-party notices](NOTICE.md)
+- [Versioning and release channels](VERSIONING.md)
 - [MIT License](../LICENSE)
-- [Build history and downloadable artifacts](https://github.com/flennium/quiet-monitor/actions/workflows/build.yml)
+- [Versioned downloads](https://github.com/flennium/quiet-monitor/releases)
 - [Issues](https://github.com/flennium/quiet-monitor/issues)
 
 ---
