@@ -44,7 +44,7 @@ namespace QuietMonitor.SensorBroker
             }
         }
 
-        private static string GetPackageFamilyName()
+        private static string? GetPackageFamilyName()
         {
             uint length = 0;
             var result = GetCurrentPackageFamilyName(ref length, null);
@@ -55,7 +55,7 @@ namespace QuietMonitor.SensorBroker
         }
 
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
-        private static extern int GetCurrentPackageFamilyName(ref uint packageFamilyNameLength, StringBuilder packageFamilyName);
+        private static extern int GetCurrentPackageFamilyName(ref uint packageFamilyNameLength, StringBuilder? packageFamilyName);
 
         private static bool HeartbeatIsCurrent(string path)
         {
