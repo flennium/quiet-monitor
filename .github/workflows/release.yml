@@ -1,0 +1,120 @@
+name: publish release
+
+on:
+  push:
+    branches: [main]
+    paths: [VERSION]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - uses: microsoft/setup-msbuild@v2
+
+      - name: Read and validate version
+        shell: pwsh
+        run: |
+          $version = (Get-Content VERSION -Raw).Trim()
+          if ($version -notmatch '^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$') { throw "Invalid semantic version: $version" }
+          $manifest = [xml](Get-Content Package.appxmanifest -Raw)
+          $windowsVersion = $manifest.Package.Identity.Version
+          "VERSION=$version" >> $env:GITHUB_ENV
+          "WINDOWS_VERSION=$windowsVersion" >> $env:GITHUB_ENV
+          if (git ls-remote --exit-code --tags origin "refs/tags/v$version") { throw "Tag v$version already exists. Update VERSION before publishing." }
+
+      - name: Restore release signing certificate
+        shell: pwsh
+        env:
+          PFX_BASE64: ${{ secrets.QUIETMONITOR_PFX_BASE64 }}
+        run: |
+          [IO.File]::WriteAllBytes("$pwd\Installer\QuietMonitor.Release.pfx", [Convert]::FromBase64String($env:PFX_BASE64))
+
+      - name: Build desktop app and sensor broker
+        shell: pwsh
+        run: |
+          .\build.ps1 -DesktopOnly
+          .\package.ps1
+
+      - name: Build signed Xbox Game Bar package
+        shell: pwsh
+        env:
+          PFX_PASSWORD: ${{ secrets.QUIETMONITOR_PFX_PASSWORD }}
+          CERT_THUMBPRINT: ${{ secrets.QUIETMONITOR_CERT_THUMBPRINT }}
+        run: |
+          msbuild QuietMonitor.csproj /restore /t:Build /p:Configuration=Release /p:Platform=x64 /p:AppxPackageSigningEnabled=true /p:PackageCertificateKeyFile="$pwd\Installer\QuietMonitor.Release.pfx" /p:PackageCertificatePassword="$env:PFX_PASSWORD" /p:PackageCertificateThumbprint="$env:CERT_THUMBPRINT"
+
+      - name: Stage Game Bar package
+        shell: pwsh
+        run: |
+          $package = Get-ChildItem AppPackages -Directory | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+          if (-not $package) { throw 'The Game Bar package output was not found.' }
+          New-Item -ItemType Directory -Path staging\GameBarPackage -Force | Out-Null
+          Copy-Item -Path "$($package.FullName)\*" -Destination staging\GameBarPackage -Recurse -Force
+          if (Test-Path staging\GameBarPackage\TelemetryDependencies) { throw 'Installer telemetry helper must not be packaged.' }
+
+      - name: Build unified installer
+        shell: pwsh
+        run: |
+          choco install innosetup --yes --no-progress
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DAppVersion=$env:VERSION" "/DCertThumbprint=${{ secrets.QUIETMONITOR_CERT_THUMBPRINT }}" Installer\QuietMonitor.iss
+
+      - name: Create release archives and notes
+        shell: pwsh
+        run: |
+          Compress-Archive -Path artifacts\QuietMonitor\* -DestinationPath "artifacts\QuietMonitor-v$env:VERSION-desktop-win-x64.zip" -CompressionLevel Optimal
+          Compress-Archive -Path staging\GameBarPackage\* -DestinationPath "artifacts\QuietMonitor-v$env:VERSION-game-bar-x64.zip" -CompressionLevel Optimal
+          @"
+          Quiet Monitor v$env:VERSION
+
+          Recommended download
+
+          - QuietMonitor-v$env:VERSION-setup-win-x64.exe installs the control center, desktop overlay, trusted package certificate, and Xbox Game Bar extension together.
+          - The two ZIP files are provided for portable or manual deployment.
+
+          Highlights
+
+          - One control center configures Game Bar preference, desktop placement, size, opacity, refresh interval, visible sensors, and the global show/toggle shortcut.
+          - Xbox Game Bar is preferred by default with automatic desktop fallback.
+          - Ctrl+Alt+Q toggles the monitor by default without a resident hotkey process.
+          - No startup entry, service, tray process, game injection, analytics, or network client.
+
+          Verification
+
+          Built, signed, packaged, and installer-compiled on GitHub Actions for Windows. This prerelease still benefits from wider hardware and game compatibility testing.
+          "@ | Set-Content artifacts\release-notes.txt
+
+      - name: Create version tag and GitHub Release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = "v$env:VERSION"
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git tag -a $tag -m "Quiet Monitor $tag"
+          git push origin $tag
+          $flags = @()
+          if ($env:VERSION.Contains('-')) { $flags += '--prerelease' }
+          gh release create $tag `
+            "artifacts\installer\QuietMonitor-v$env:VERSION-setup-win-x64.exe#Recommended unified installer" `
+            "artifacts\QuietMonitor-v$env:VERSION-desktop-win-x64.zip#Portable desktop launcher and fallback" `
+            "artifacts\QuietMonitor-v$env:VERSION-game-bar-x64.zip#Signed Xbox Game Bar package" `
+            --title "Quiet Monitor v$env:VERSION" --notes-file artifacts\release-notes.txt @flags
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: QuietMonitor-v${{ env.VERSION }}-release
+          path: |
+            artifacts/installer/*.exe
+            artifacts/*.zip
+          if-no-files-found: error

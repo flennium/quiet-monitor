@@ -38,14 +38,14 @@ The launcher checks the registered `ms-gamebar:` handler and Windows Game DVR se
 
 ## Quick start
 
-1. Open the [v0.1.0 Beta 1 release](https://github.com/flennium/quiet-monitor/releases/tag/v0.1.0-beta.1).
-2. Download [QuietMonitor-v0.1.0-beta.1-desktop-win-x64.zip](https://github.com/flennium/quiet-monitor/releases/download/v0.1.0-beta.1/QuietMonitor-v0.1.0-beta.1-desktop-win-x64.zip) for the launcher and automatic desktop fallback.
-3. If Xbox Game Bar is installed, also download [QuietMonitor-v0.1.0-beta.1-game-bar-x64.zip](https://github.com/flennium/quiet-monitor/releases/download/v0.1.0-beta.1/QuietMonitor-v0.1.0-beta.1-game-bar-x64.zip), extract it, and run `Install.ps1` from PowerShell.
-4. Extract the desktop ZIP and keep its `DesktopOverlay` folder beside `QuietMonitor.exe`.
-5. Use **Quiet Monitor.lnk** to open or toggle the monitor.
+1. Open the [latest release](https://github.com/flennium/quiet-monitor/releases).
+2. Download `QuietMonitor-v0.1.0-beta.2-setup-win-x64.exe` and run it as administrator. This installs the control center, desktop overlay, certificate, and Game Bar extension together.
+3. Leave **Open the Quiet Monitor control center** selected on the final installer page.
+4. Save your preferred mode, readings, appearance, and keybind in the single settings window.
+5. Use **Ctrl + Alt + Q** (configurable or disableable) to show or toggle the monitor.
 6. The first time Game Bar opens, choose **Quiet Monitor** from its widget menu and pin it. Game Bar remembers the pin.
 
-Use **Quiet Monitor Settings.lnk** to choose the desktop overlay permanently, or run:
+Use **Quiet Monitor Settings** from the Start menu to change either overlay mode later, or run:
 
 ```powershell
 QuietMonitor.exe --settings

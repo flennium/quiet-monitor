@@ -19,6 +19,7 @@ $monitorShortcut = $shell.CreateShortcut((Join-Path $artifacts 'Quiet Monitor.ln
 $monitorShortcut.TargetPath = Join-Path $artifacts 'QuietMonitor.exe'
 $monitorShortcut.WorkingDirectory = $artifacts
 $monitorShortcut.Description = 'Toggle the Quiet Monitor hardware overlay'
+$monitorShortcut.Hotkey = 'CTRL+ALT+Q'
 $monitorShortcut.Save()
 
 $settingsShortcut = $shell.CreateShortcut((Join-Path $artifacts 'Quiet Monitor Settings.lnk'))

@@ -19,6 +19,7 @@ namespace QuietMonitor
         private StorageFolder _localFolder;
         private bool _brokerStarted;
         private bool _polling;
+        private JsonObject _settings = new JsonObject();
 
         public OverlayPage()
         {
@@ -32,6 +33,7 @@ namespace QuietMonitor
             _localFolder = ApplicationData.Current.LocalFolder;
             _widget.SettingsClicked += WidgetSettingsClicked;
             _widget.VisibleChanged += WidgetVisibleChanged;
+            await LoadSettingsAsync();
             ApplySettings();
             await EnsureBrokerAsync();
             UpdateTimerState();
@@ -62,6 +64,7 @@ namespace QuietMonitor
         {
             if (_widget != null && _widget.Visible)
             {
+                await LoadSettingsAsync();
                 ApplySettings();
                 _timer.Start();
             }
@@ -119,18 +122,30 @@ namespace QuietMonitor
 
         private void ApplySettings()
         {
-            var values = ApplicationData.Current.LocalSettings.Values;
-            _timer.Interval = TimeSpan.FromMilliseconds(ReadInt(values, "refreshMs", 1000));
-            Surface.Opacity = ReadDouble(values, "opacity", 0.9);
-            CpuLoadRow.Visibility = Visible(ReadBool(values, "cpuLoad", true));
-            CpuTemperatureRow.Visibility = Visible(ReadBool(values, "cpuTemperature", true));
-            GpuLoadRow.Visibility = Visible(ReadBool(values, "gpuLoad", true));
-            GpuTemperatureRow.Visibility = Visible(ReadBool(values, "gpuTemperature", true));
-            GpuHotspotRow.Visibility = Visible(ReadBool(values, "gpuHotspot", true));
-            GpuPowerRow.Visibility = Visible(ReadBool(values, "gpuPower", true));
-            GpuFanRow.Visibility = Visible(ReadBool(values, "gpuFan", false));
-            MemoryRow.Visibility = Visible(ReadBool(values, "memory", true));
-            VramRow.Visibility = Visible(ReadBool(values, "vram", true));
+            _timer.Interval = TimeSpan.FromMilliseconds(ReadInt(_settings, "RefreshIntervalMs", 1000));
+            Surface.Opacity = ReadDouble(_settings, "Opacity", 0.9);
+            CpuLoadRow.Visibility = Visible(ReadBool(_settings, "ShowCpuLoad", true));
+            CpuTemperatureRow.Visibility = Visible(ReadBool(_settings, "ShowCpuTemperature", true));
+            GpuLoadRow.Visibility = Visible(ReadBool(_settings, "ShowGpuLoad", true));
+            GpuTemperatureRow.Visibility = Visible(ReadBool(_settings, "ShowGpuTemperature", true));
+            GpuHotspotRow.Visibility = Visible(ReadBool(_settings, "ShowGpuHotspot", true));
+            GpuPowerRow.Visibility = Visible(ReadBool(_settings, "ShowGpuPower", true));
+            GpuFanRow.Visibility = Visible(ReadBool(_settings, "ShowGpuFan", false));
+            MemoryRow.Visibility = Visible(ReadBool(_settings, "ShowMemory", true));
+            VramRow.Visibility = Visible(ReadBool(_settings, "ShowVram", true));
+        }
+
+        private async Task LoadSettingsAsync()
+        {
+            try
+            {
+                var file = await _localFolder.GetFileAsync("settings.json");
+                _settings = JsonObject.Parse(await FileIO.ReadTextAsync(file));
+            }
+            catch
+            {
+                _settings = new JsonObject();
+            }
         }
 
         private static double? Number(JsonObject json, string key) => json.ContainsKey(key) && json[key].ValueType == JsonValueType.Number ? json[key].GetNumber() : (double?)null;
@@ -148,8 +163,8 @@ namespace QuietMonitor
         }
 
         private static Visibility Visible(bool value) => value ? Visibility.Visible : Visibility.Collapsed;
-        private static bool ReadBool(Windows.Foundation.Collections.IPropertySet values, string key, bool fallback) => values.ContainsKey(key) && values[key] is bool value ? value : fallback;
-        private static int ReadInt(Windows.Foundation.Collections.IPropertySet values, string key, int fallback) => values.ContainsKey(key) && values[key] is int value ? value : fallback;
-        private static double ReadDouble(Windows.Foundation.Collections.IPropertySet values, string key, double fallback) => values.ContainsKey(key) && values[key] is double value ? value : fallback;
+        private static bool ReadBool(JsonObject values, string key, bool fallback) => values.ContainsKey(key) && values[key].ValueType == JsonValueType.Boolean ? values[key].GetBoolean() : fallback;
+        private static int ReadInt(JsonObject values, string key, int fallback) => values.ContainsKey(key) && values[key].ValueType == JsonValueType.Number ? (int)values[key].GetNumber() : fallback;
+        private static double ReadDouble(JsonObject values, string key, double fallback) => values.ContainsKey(key) && values[key].ValueType == JsonValueType.Number ? values[key].GetNumber() : fallback;
     }
 }

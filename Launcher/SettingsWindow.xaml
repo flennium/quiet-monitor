@@ -1,41 +1,68 @@
 <Window x:Class="QuietMonitor.Launcher.SettingsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Quiet Monitor settings" Width="620" Height="460" ResizeMode="NoResize"
+        Title="Quiet Monitor Control Center" Width="820" Height="760" MinWidth="720" MinHeight="640"
         Background="{StaticResource Ink}" WindowStartupLocation="CenterScreen">
-    <Grid Margin="32">
+    <Grid>
         <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
-        <StackPanel>
-            <TextBlock Text="Launch mode" FontFamily="Segoe UI Variable Display" FontSize="30" FontWeight="SemiBold" />
-            <TextBlock Text="Choose how Quiet Monitor appears over your games." Foreground="{StaticResource Muted}" FontSize="14" Margin="0,6,0,0" />
+        <StackPanel Margin="32,28,32,20">
+            <TextBlock Text="Quiet Monitor" FontFamily="Segoe UI Variable Display" FontSize="32" FontWeight="SemiBold" />
+            <TextBlock Text="One control center for Game Bar and the desktop overlay." Foreground="{StaticResource Muted}" FontSize="14" Margin="0,5,0,0" />
         </StackPanel>
 
-        <StackPanel Grid.Row="1" Margin="0,26,0,0">
-            <Border Background="{StaticResource Panel}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="12" Padding="22">
-                <StackPanel>
-                    <CheckBox x:Name="PreferGameBarCheck" Content="Use Xbox Game Bar when available" IsChecked="True" Checked="PreferenceChanged" Unchecked="PreferenceChanged" />
-                    <TextBlock Text="Best for fullscreen games. Quiet Monitor opens Game Bar, where you can select and pin the widget. This is enabled by default." Foreground="{StaticResource Muted}" TextWrapping="Wrap" LineHeight="19" Margin="26,9,0,0" />
-                </StackPanel>
-            </Border>
-            <Border Background="{StaticResource Panel}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="12" Padding="22" Margin="0,14,0,0">
-                <Grid>
-                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="32,0,32,24">
+                <Border Background="{StaticResource Panel}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="12" Padding="22">
                     <StackPanel>
-                        <TextBlock Text="Xbox Game Bar" FontWeight="SemiBold" FontSize="15" />
-                        <TextBlock x:Name="GameBarStatus" Foreground="{StaticResource Muted}" Margin="0,5,0,0" />
+                        <TextBlock Text="Launch" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,16" />
+                        <CheckBox x:Name="PreferGameBarCheck" Content="Use Xbox Game Bar when available" />
+                        <TextBlock Text="Recommended for fullscreen games. If Game Bar is unavailable, Quiet Monitor automatically uses the desktop overlay." Foreground="{StaticResource Muted}" TextWrapping="Wrap" Margin="26,8,0,14" />
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="220" /></Grid.ColumnDefinitions>
+                            <StackPanel><TextBlock Text="Show / toggle shortcut" FontWeight="SemiBold" /><TextBlock Text="Handled by Windows; no hotkey process stays open." Foreground="{StaticResource Muted}" FontSize="12" Margin="0,4,0,0" /></StackPanel>
+                            <ComboBox x:Name="HotkeyCombo" Grid.Column="1">
+                                <ComboBoxItem Content="Ctrl + Alt + Q" Tag="CTRL+ALT+Q" />
+                                <ComboBoxItem Content="Ctrl + Alt + M" Tag="CTRL+ALT+M" />
+                                <ComboBoxItem Content="Ctrl + Alt + O" Tag="CTRL+ALT+O" />
+                                <ComboBoxItem Content="Ctrl + Alt + F10" Tag="CTRL+ALT+F10" />
+                                <ComboBoxItem Content="Off" Tag="" />
+                            </ComboBox>
+                        </Grid>
+                        <Border Background="#0E151E" CornerRadius="8" Padding="14" Margin="0,16,0,0">
+                            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                <StackPanel><TextBlock Text="Xbox Game Bar" FontWeight="SemiBold" /><TextBlock x:Name="GameBarStatus" Foreground="{StaticResource Muted}" Margin="0,4,0,0" /></StackPanel>
+                                <Ellipse x:Name="StatusDot" Grid.Column="1" Width="10" Height="10" VerticalAlignment="Center" Fill="#6FD4B0" />
+                            </Grid>
+                        </Border>
                     </StackPanel>
-                    <Ellipse x:Name="StatusDot" Grid.Column="1" Width="10" Height="10" VerticalAlignment="Center" Fill="#6FD4B0" />
-                </Grid>
-            </Border>
-            <TextBlock x:Name="FeedbackText" Foreground="#6FD4B0" Margin="2,15,0,0" TextWrapping="Wrap" />
-        </StackPanel>
+                </Border>
 
-        <Grid Grid.Row="2">
-            <TextBlock Text="No startup entry · No service · No game injection" Foreground="{StaticResource Muted}" VerticalAlignment="Center" FontSize="12" />
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="Close" Background="#253243" Click="Close_Click" Margin="0,0,10,0" />
-                <Button Content="Open monitor" Click="OpenMonitor_Click" />
+                <Border Background="{StaticResource Panel}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="12" Padding="22" Margin="0,16,0,0">
+                    <StackPanel>
+                        <TextBlock Text="Appearance and timing" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,16" />
+                        <Grid Margin="0,6"><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="220" /></Grid.ColumnDefinitions><TextBlock Text="Desktop position" VerticalAlignment="Center" /><ComboBox x:Name="PositionCombo" Grid.Column="1"><ComboBoxItem Content="Top right" Tag="TopRight" /><ComboBoxItem Content="Top left" Tag="TopLeft" /><ComboBoxItem Content="Bottom right" Tag="BottomRight" /><ComboBoxItem Content="Bottom left" Tag="BottomLeft" /></ComboBox></Grid>
+                        <Grid Margin="0,6"><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="220" /></Grid.ColumnDefinitions><TextBlock Text="Overlay size" VerticalAlignment="Center" /><ComboBox x:Name="ScaleCombo" Grid.Column="1"><ComboBoxItem Content="Compact" Tag="0.85" /><ComboBoxItem Content="Balanced" Tag="1" /><ComboBoxItem Content="Large" Tag="1.2" /></ComboBox></Grid>
+                        <Grid Margin="0,6"><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="220" /></Grid.ColumnDefinitions><StackPanel><TextBlock Text="Opacity" /><TextBlock x:Name="OpacityValueText" Foreground="{StaticResource Muted}" FontSize="12" /></StackPanel><Slider x:Name="OpacitySlider" Grid.Column="1" Minimum="55" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True" ValueChanged="OpacityChanged" /></Grid>
+                        <Grid Margin="0,6"><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="220" /></Grid.ColumnDefinitions><TextBlock Text="Refresh interval" VerticalAlignment="Center" /><ComboBox x:Name="RefreshCombo" Grid.Column="1"><ComboBoxItem Content="0.5 seconds" Tag="500" /><ComboBoxItem Content="1 second" Tag="1000" /><ComboBoxItem Content="2 seconds" Tag="2000" /></ComboBox></Grid>
+                    </StackPanel>
+                </Border>
+
+                <Border Background="{StaticResource Panel}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="12" Padding="22" Margin="0,16,0,0">
+                    <StackPanel>
+                        <TextBlock Text="Visible readings" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,12" />
+                        <UniformGrid Columns="3">
+                            <CheckBox x:Name="CpuLoadCheck" Content="CPU load" Margin="0,7" /><CheckBox x:Name="CpuTemperatureCheck" Content="CPU temperature" Margin="0,7" /><CheckBox x:Name="MemoryCheck" Content="Memory" Margin="0,7" />
+                            <CheckBox x:Name="GpuLoadCheck" Content="GPU load" Margin="0,7" /><CheckBox x:Name="GpuTemperatureCheck" Content="GPU temperature" Margin="0,7" /><CheckBox x:Name="GpuHotspotCheck" Content="GPU hotspot" Margin="0,7" />
+                            <CheckBox x:Name="GpuPowerCheck" Content="GPU power" Margin="0,7" /><CheckBox x:Name="GpuFanCheck" Content="GPU fan" Margin="0,7" /><CheckBox x:Name="VramCheck" Content="Video memory" Margin="0,7" />
+                        </UniformGrid>
+                    </StackPanel>
+                </Border>
+                <TextBlock x:Name="FeedbackText" Foreground="#6FD4B0" Margin="2,15,0,0" TextWrapping="Wrap" />
             </StackPanel>
-        </Grid>
+        </ScrollViewer>
+
+        <Border Grid.Row="2" Background="#111923" BorderBrush="{StaticResource Line}" BorderThickness="0,1,0,0" Padding="32,15">
+            <Grid><TextBlock Text="No startup entry · No service · No injection" Foreground="{StaticResource Muted}" VerticalAlignment="Center" FontSize="12" /><StackPanel Orientation="Horizontal" HorizontalAlignment="Right"><Button Content="Close" Background="#253243" Click="Close_Click" Margin="0,0,10,0" /><Button Content="Save" Background="#253243" Click="Save_Click" Margin="0,0,10,0" /><Button Content="Save and open monitor" Click="OpenMonitor_Click" /></StackPanel></Grid>
+        </Border>
     </Grid>
 </Window>
