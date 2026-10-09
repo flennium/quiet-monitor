@@ -60,7 +60,7 @@ namespace QuietMonitor
 
         private void WidgetVisibleChanged(XboxGameBarWidget sender, object args) => UpdateTimerState();
 
-        private void UpdateTimerState()
+        private async void UpdateTimerState()
         {
             if (_widget != null && _widget.Visible)
             {
