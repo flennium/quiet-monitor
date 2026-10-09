@@ -187,10 +187,6 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="SensorBroker\QuietMonitor.SensorBroker.csproj" ReferenceOutputAssembly="false" />
-  </ItemGroup>
-
   <Target Name="IncludeSensorBrokerPayload" BeforeTargets="_GenerateAppxPackageRecipe">
     <ItemGroup>
       <AppxPackagePayload Include="SensorBroker\bin\$(Configuration)\net48\QuietMonitor.SensorBroker.exe">

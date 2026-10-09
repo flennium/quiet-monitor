@@ -21,6 +21,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: microsoft/setup-msbuild@v2
+      - name: Build sensor broker
+        shell: pwsh
+        run: dotnet build SensorBroker\QuietMonitor.SensorBroker.csproj -c Release
       - name: Restore and build Xbox Game Bar widget
         shell: pwsh
         run: msbuild QuietMonitor.csproj /restore /t:Build /p:Configuration=Release /p:Platform=x64 /p:AppxPackageSigningEnabled=false
