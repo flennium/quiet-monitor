@@ -9,7 +9,6 @@
         <SolidColorBrush x:Key="Text" Color="#F2F6FA" />
         <SolidColorBrush x:Key="Muted" Color="#9BA9B8" />
         <SolidColorBrush x:Key="Blue" Color="#4287F5" />
-        <Style TargetType="TextBlock"><Setter Property="Foreground" Value="{StaticResource Text}" /></Style>
         <Style TargetType="Button">
             <Setter Property="Foreground" Value="White" /><Setter Property="Background" Value="{StaticResource Blue}" />
             <Setter Property="BorderThickness" Value="0" /><Setter Property="Padding" Value="18,10" />

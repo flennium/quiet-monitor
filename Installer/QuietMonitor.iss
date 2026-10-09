@@ -1,5 +1,5 @@
 #ifndef AppVersion
-#define AppVersion "0.1.0-beta.5"
+#define AppVersion "0.1.0-beta.6"
 #endif
 #ifndef CertThumbprint
   #define CertThumbprint "876A918726367882CA91C931386E5D6FB4EE10B0"
@@ -17,6 +17,7 @@ DefaultDirName={autopf}\Quiet Monitor
 DefaultGroupName=Quiet Monitor
 DisableProgramGroupPage=yes
 PrivilegesRequired=admin
+RestartIfNeededByRun=no
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 OutputDir=..\artifacts\installer
@@ -26,7 +27,7 @@ SolidCompression=yes
 WizardStyle=modern
 SetupIconFile=QuietMonitor.ico
 UninstallDisplayIcon={app}\QuietMonitor.exe
-VersionInfoVersion=0.1.0.5
+VersionInfoVersion=0.1.0.6
 VersionInfoCompany=flennium
 VersionInfoDescription=Quiet Monitor installer
 VersionInfoProductName=Quiet Monitor
